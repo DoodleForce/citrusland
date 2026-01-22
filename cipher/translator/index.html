@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Citruslandic Cipher Translator</title>
+<style>
+  body {
+    font-family: monospace;
+    background: #111;
+    color: #0f0;
+    padding: 20px;
+  }
+  textarea {
+    width: 100%;
+    height: 140px;
+    background: #000;
+    color: #0f0;
+    border: 1px solid #0f0;
+    padding: 10px;
+    font-size: 16px;
+  }
+  button {
+    margin: 10px 5px 0 0;
+    padding: 10px 15px;
+    background: #0f0;
+    color: #000;
+    font-weight: bold;
+    border: none;
+    cursor: pointer;
+  }
+</style>
+</head>
+<body>
+
+<h2>Citruslandic Cipher Translator</h2>
+
+<textarea id="input" placeholder="Enter text..."></textarea>
+
+<button onclick="toCipher()">English → Cipher</button>
+<button onclick="toEnglish()">Cipher → English</button>
+
+<textarea id="output" placeholder="Output..."></textarea>
+
+<script>
+const engToCipher = {
+  a: ".", b: ",", c: "-", d: ":", e: "'", f: "!", g: "@", h: "#",
+  i: "$", j: "%", k: "^", l: "&", m: "*", n: "(", o: ")",
+  p: "+", q: "=", r: "~", s: '"', t: ";", u: "<", v: "?",
+  w: "1", x: "2", y: "9", z: "0"
+};
+
+const cipherToEng = Object.fromEntries(
+  Object.entries(engToCipher).map(([k, v]) => [v, k])
+);
+
+// English → Cipher with correct brackets
+function toCipher() {
+  let input = document.getElementById("input").value.trim();
+  let words = input.split(/\s+/);
+  let out = "";
+
+  words.forEach((word, index) => {
+    if (index > 0) out += "] ["; // between words only
+
+    let i = 0;
+    while (i < word.length) {
+      if (/\d/.test(word[i])) {
+        let num = "";
+        while (i < word.length && /\d/.test(word[i])) {
+          num += word[i++];
+        }
+        out += "_" + num + "_";
+        continue;
+      }
+
+      let ch = word[i].toLowerCase();
+      out += engToCipher[ch] ?? word[i];
+      i++;
+    }
+  });
+
+  out += "]"; // optional final end-of-word
+  document.getElementById("output").value = out;
+}
+
+// Cipher → English (ignores brackets)
+function toEnglish() {
+  let input = document.getElementById("input").value;
+  let out = "";
+  let i = 0;
+
+  while (i < input.length) {
+    if (input[i] === "_") {
+      let end = input.indexOf("_", i + 1);
+      if (end !== -1) {
+        out += input.slice(i + 1, end);
+        i = end + 1;
+        continue;
+      }
+    }
+
+    if (input[i] === "[" || input[i] === "]") {
+      if (input[i] === "]") out += " ";
+      i++;
+      continue;
+    }
+
+    out += cipherToEng[input[i]] ?? input[i];
+    i++;
+  }
+
+  document.getElementById("output").value = out.trim();
+}
+</script>
+
+</body>
+</html>
